@@ -36,8 +36,6 @@
     }
   ],
   "env": {
-    "NEXT_PUBLIC_API_URL": "https://your-api-url.com",
-    "DATABASE_URL": "@database-url",
-    "EMAIL_API_KEY": "@email-api-key"
+    "NEXT_PUBLIC_API_URL": "https://strata-management.vercel.app"
   }
 } 
