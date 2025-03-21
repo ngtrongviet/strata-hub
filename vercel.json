@@ -1,0 +1,43 @@
+{
+  "version": 2,
+  "regions": ["syd1"],
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "crons": [
+    {
+      "path": "/api/edge/levy-reminder",
+      "schedule": "0 9 1 * *"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/documents",
+      "destination": "/documents/",
+      "permanent": true
+    }
+  ],
+  "env": {
+    "NEXT_PUBLIC_API_URL": "https://your-api-url.com",
+    "DATABASE_URL": "@database-url",
+    "EMAIL_API_KEY": "@email-api-key"
+  }
+} 
