@@ -7,31 +7,19 @@ export async function POST(req: NextRequest) {
   try {
     const data = await req.json()
     
-    // Validate request data
-    if (!data.issueType || !data.description) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      )
-    }
-
-    // In a real app, you'd save to a database here
-    const request = {
-      id: Date.now(),
-      status: 'pending',
-      createdAt: new Date().toISOString(),
-      ...data
-    }
-
-    // Send notification to building manager (in a real app)
+    // In a real app, you would:
+    // 1. Validate the request data
+    // 2. Save to database
+    // 3. Send notifications
+    // 4. Handle file uploads
     
-    return NextResponse.json(
-      { success: true, request },
-      { status: 201 }
-    )
+    return NextResponse.json({
+      success: true,
+      message: 'Maintenance request created successfully'
+    }, { status: 201 })
   } catch (error) {
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to create maintenance request' },
       { status: 500 }
     )
   }
