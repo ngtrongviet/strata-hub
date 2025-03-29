@@ -16,9 +16,9 @@ export default function Dashboard() {
         <div className="absolute inset-0 bg-gradient-to-r from-sky-900/80 via-sky-800/60 to-transparent">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
             <div className="max-w-xl">
-              <h1 className="text-4xl sm:text-5xl font-bold text-white mb-6 drop-shadow-lg">
+              <p className="text-6xl sm:text-6xl font-bold text-white mb-6 drop-shadow-lg">
                 StrataHub
-              </h1>
+              </p>
               <p className="text-xl sm:text-2xl text-white drop-shadow-lg mb-4">
                 A comprehensive online platform for strata committees in New South Wales.
               </p>

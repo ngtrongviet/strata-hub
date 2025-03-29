@@ -85,7 +85,7 @@ export default function Documents() {
             Strata by-laws and building rules
           </p>
           <a 
-            href="/documents/rules.pdf" 
+            href="/documents/rules.rtf" 
             download
             className="inline-block bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-lg transition-colors"
           >
