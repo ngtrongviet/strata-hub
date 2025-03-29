@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
 interface MaintenanceRequest {
@@ -13,7 +13,16 @@ interface MaintenanceRequest {
   updatedAt: string
 }
 
-// Example data - in a real app, this would come from a database
+// Format date consistently
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  })
+}
+
+// Move example data outside the component
 const exampleRequests: MaintenanceRequest[] = [
   {
     id: '1',
@@ -39,21 +48,28 @@ const exampleRequests: MaintenanceRequest[] = [
 
 export default function MaintenancePage() {
   const [activeTab, setActiveTab] = useState<'active' | 'completed'>('active')
+  // Add client-side only state for rendered
+  const [isClient, setIsClient] = useState(false)
+  
+  // Use useEffect to handle client-side rendering
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
   
   return (
     <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-blue-600 dark:text-white mb-2">
+          <h1 className="text-3xl font-bold text-sky-600 mb-2">
             Maintenance Requests
           </h1>
-          <p className="text-blue-400 dark:text-blue-200">
+          <p className="text-slate-600">
             Submit and track maintenance requests
           </p>
         </div>
         <Link
           href="/maintenance/new"
-          className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+          className="bg-sky-500 hover:bg-sky-600 text-white px-6 py-3 rounded-lg transition-colors"
         >
           New Request
         </Link>
@@ -61,30 +77,30 @@ export default function MaintenancePage() {
 
       {/* Status Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white dark:bg-blue-800 rounded-lg shadow-lg p-6">
-          <h3 className="text-lg font-semibold text-blue-900 dark:text-white mb-2">Pending</h3>
-          <p className="text-3xl font-bold text-blue-600 dark:text-blue-300">3</p>
+        <div className="bg-white border border-slate-200 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-sky-600 mb-2">Pending</h3>
+          <p className="text-3xl font-bold text-sky-500">3</p>
         </div>
-        <div className="bg-white dark:bg-blue-800 rounded-lg shadow-lg p-6">
-          <h3 className="text-lg font-semibold text-blue-900 dark:text-white mb-2">In Progress</h3>
-          <p className="text-3xl font-bold text-blue-600 dark:text-blue-300">2</p>
+        <div className="bg-white border border-slate-200 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-sky-600 mb-2">In Progress</h3>
+          <p className="text-3xl font-bold text-sky-500">2</p>
         </div>
-        <div className="bg-white dark:bg-blue-800 rounded-lg shadow-lg p-6">
-          <h3 className="text-lg font-semibold text-blue-900 dark:text-white mb-2">Completed</h3>
-          <p className="text-3xl font-bold text-blue-600 dark:text-blue-300">8</p>
+        <div className="bg-white border border-slate-200 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-sky-600 mb-2">Completed</h3>
+          <p className="text-3xl font-bold text-sky-500">8</p>
         </div>
       </div>
 
       {/* Request List */}
-      <div className="bg-white dark:bg-blue-800 rounded-lg shadow-lg overflow-hidden">
-        <div className="border-b border-gray-200 dark:border-blue-700">
+      <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
+        <div className="border-b border-slate-200">
           <nav className="flex">
             <button
               onClick={() => setActiveTab('active')}
               className={`px-6 py-3 text-sm font-medium ${
                 activeTab === 'active'
-                  ? 'border-b-2 border-blue-500 text-blue-600 dark:text-white'
-                  : 'text-gray-500 hover:text-gray-700 dark:text-gray-300'
+                  ? 'border-b-2 border-sky-500 text-sky-600'
+                  : 'text-slate-500 hover:text-slate-700'
               }`}
             >
               Active Requests
@@ -93,8 +109,8 @@ export default function MaintenancePage() {
               onClick={() => setActiveTab('completed')}
               className={`px-6 py-3 text-sm font-medium ${
                 activeTab === 'completed'
-                  ? 'border-b-2 border-blue-500 text-blue-600 dark:text-white'
-                  : 'text-gray-500 hover:text-gray-700 dark:text-gray-300'
+                  ? 'border-b-2 border-sky-500 text-sky-600'
+                  : 'text-slate-500 hover:text-slate-700'
               }`}
             >
               Completed
@@ -103,7 +119,7 @@ export default function MaintenancePage() {
         </div>
 
         <div className="divide-y divide-gray-200 dark:divide-blue-700">
-          {exampleRequests.map((request) => (
+          {isClient && exampleRequests.map((request) => (
             <div key={request.id} className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-blue-900 dark:text-white">
@@ -121,12 +137,19 @@ export default function MaintenancePage() {
               <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400">
                 <span>Location: {request.location}</span>
                 <span>Priority: {request.priority.toUpperCase()}</span>
-                <span>Submitted: {new Date(request.submittedAt).toLocaleDateString()}</span>
+                <span>Submitted: {formatDate(request.submittedAt)}</span>
               </div>
             </div>
           ))}
         </div>
       </div>
+
+      {/* Show loading state while client-side rendering isn't ready */}
+      {!isClient && (
+        <div className="p-6 text-center text-gray-500 dark:text-gray-400">
+          Loading...
+        </div>
+      )}
     </div>
   )
 } 

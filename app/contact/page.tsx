@@ -69,17 +69,17 @@ export default function Contact() {
     <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
       {/* Contact Form Section */}
       <div className="mb-12">
-        <h1 className="text-3xl font-bold text-blue-600 dark:text-white mb-2">
+        <h1 className="text-3xl font-bold text-sky-600 mb-2">
           Contact Management
         </h1>
-        <p className="text-blue-400 dark:text-blue-200 mb-6">
+        <p className="text-slate-600 mb-6">
           Get in touch with the building management team
         </p>
 
-        <form onSubmit={handleSubmit} className="max-w-2xl bg-white dark:bg-blue-800 rounded-lg shadow-lg p-6">
+        <form onSubmit={handleSubmit} className="max-w-2xl bg-white border border-slate-200 rounded-lg p-6">
           <div className="grid grid-cols-1 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+              <label className="block text-sm font-medium text-slate-700 mb-1">
                 Name
               </label>
               <input
@@ -87,12 +87,12 @@ export default function Contact() {
                 required
                 value={formData.name}
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
-                className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+              <label className="block text-sm font-medium text-slate-700 mb-1">
                 Unit Number
               </label>
               <input
@@ -100,12 +100,12 @@ export default function Contact() {
                 required
                 value={formData.unit}
                 onChange={(e) => setFormData({...formData, unit: e.target.value})}
-                className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+              <label className="block text-sm font-medium text-slate-700 mb-1">
                 Email
               </label>
               <input
@@ -113,12 +113,12 @@ export default function Contact() {
                 required
                 value={formData.email}
                 onChange={(e) => setFormData({...formData, email: e.target.value})}
-                className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+              <label className="block text-sm font-medium text-slate-700 mb-1">
                 Subject
               </label>
               <input
@@ -126,12 +126,12 @@ export default function Contact() {
                 required
                 value={formData.subject}
                 onChange={(e) => setFormData({...formData, subject: e.target.value})}
-                className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+              <label className="block text-sm font-medium text-slate-700 mb-1">
                 Message
               </label>
               <textarea
@@ -139,13 +139,13 @@ export default function Contact() {
                 rows={4}
                 value={formData.message}
                 onChange={(e) => setFormData({...formData, message: e.target.value})}
-                className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+              className="w-full bg-sky-500 hover:bg-sky-600 text-white px-6 py-3 rounded-lg transition-colors"
             >
               Send Message
             </button>
@@ -155,22 +155,22 @@ export default function Contact() {
 
       {/* Emergency Contacts Section */}
       <div className="mb-12">
-        <h2 className="text-2xl font-bold text-blue-600 dark:text-white mb-6">
+        <h2 className="text-2xl font-bold text-sky-600 mb-6">
           Emergency Contacts
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {emergencyContacts.map((contact, index) => (
             <div
               key={index}
-              className="bg-white dark:bg-blue-800 rounded-lg shadow-lg p-6"
+              className="bg-white border border-slate-200 rounded-lg shadow-sm p-6 hover:border-sky-200 hover:shadow-md transition-all"
             >
-              <h3 className="text-lg font-semibold text-blue-900 dark:text-white mb-2">
+              <h3 className="text-lg font-semibold text-sky-600 mb-2">
                 {contact.title}
               </h3>
-              <p className="text-2xl font-bold text-blue-600 dark:text-blue-300 mb-2">
+              <p className="text-2xl font-bold text-sky-500 mb-2">
                 {contact.phone}
               </p>
-              <p className="text-sm text-blue-400 dark:text-blue-200">
+              <p className="text-sm text-slate-600">
                 Available: {contact.available}
               </p>
             </div>
@@ -180,19 +180,19 @@ export default function Contact() {
 
       {/* FAQs Section */}
       <div>
-        <h2 className="text-2xl font-bold text-blue-600 dark:text-white mb-6">
+        <h2 className="text-2xl font-bold text-sky-600 mb-6">
           Frequently Asked Questions
         </h2>
         <div className="space-y-4">
           {faqs.map((faq, index) => (
             <div
               key={index}
-              className="bg-white dark:bg-blue-800 rounded-lg shadow-lg p-6"
+              className="bg-white border border-slate-200 rounded-lg shadow-sm p-6 hover:border-sky-200 hover:shadow-md transition-all"
             >
-              <h3 className="text-lg font-semibold text-blue-900 dark:text-white mb-2">
+              <h3 className="text-lg font-semibold text-sky-600 mb-2">
                 {faq.question}
               </h3>
-              <p className="text-blue-600 dark:text-blue-200">
+              <p className="text-slate-600">
                 {faq.answer}
               </p>
             </div>
