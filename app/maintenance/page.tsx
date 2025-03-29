@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 
 interface MaintenanceRequest {
   id: string
@@ -50,6 +51,9 @@ export default function MaintenancePage() {
   const [activeTab, setActiveTab] = useState<'active' | 'completed'>('active')
   // Add client-side only state for rendered
   const [isClient, setIsClient] = useState(false)
+  const searchParams = useSearchParams()
+  const success = searchParams.get('success')
+  const requestId = searchParams.get('id')
   
   // Use useEffect to handle client-side rendering
   useEffect(() => {
@@ -58,6 +62,15 @@ export default function MaintenancePage() {
   
   return (
     <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      {/* Success Message */}
+      {success && (
+        <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
+          <p className="text-green-700">
+            Maintenance request #{requestId} has been submitted successfully!
+          </p>
+        </div>
+      )}
+
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-sky-600 mb-2">

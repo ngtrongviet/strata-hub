@@ -1,5 +1,6 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 interface UnitOwner {
   unit: string
@@ -31,20 +32,155 @@ const unitOwners: UnitOwner[] = [
     lastUpdated: '2024-02-10'
   },
   {
-    unit: '201',
+    unit: '103',
     name: 'Michael Chen',
     email: 'm.chen@email.com',
     phone: '0400 345 678',
-    entitlement: 3.0,
+    entitlement: 2.5,
     occupancyType: 'Owner Occupied',
     lastUpdated: '2024-02-20'
   },
-  // Add more sample data as needed
+  {
+    unit: '104',
+    name: 'Emma Wilson',
+    email: 'emma.w@email.com',
+    phone: '0411 222 333',
+    entitlement: 2.5,
+    occupancyType: 'Tenanted',
+    lastUpdated: '2024-03-01'
+  },
+  {
+    unit: '201',
+    name: 'David Thompson',
+    email: 'd.thompson@email.com',
+    phone: '0422 333 444',
+    entitlement: 3.0,
+    occupancyType: 'Owner Occupied',
+    lastUpdated: '2024-02-28'
+  },
+  {
+    unit: '202',
+    name: 'Lisa Zhang',
+    email: 'lisa.z@email.com',
+    phone: '0433 444 555',
+    entitlement: 3.0,
+    occupancyType: 'Tenanted',
+    lastUpdated: '2024-02-25'
+  },
+  {
+    unit: '203',
+    name: 'Robert Brown',
+    email: 'robert.b@email.com',
+    phone: '0444 555 666',
+    entitlement: 3.0,
+    occupancyType: 'Owner Occupied',
+    lastUpdated: '2024-03-05'
+  },
+  {
+    unit: '204',
+    name: 'Maria Garcia',
+    email: 'm.garcia@email.com',
+    phone: '0455 666 777',
+    entitlement: 3.0,
+    occupancyType: 'Tenanted',
+    lastUpdated: '2024-03-02'
+  },
+  {
+    unit: '301',
+    name: 'James Wilson',
+    email: 'j.wilson@email.com',
+    phone: '0466 777 888',
+    entitlement: 3.5,
+    occupancyType: 'Owner Occupied',
+    lastUpdated: '2024-02-18'
+  },
+  {
+    unit: '302',
+    name: 'Sophie Kim',
+    email: 's.kim@email.com',
+    phone: '0477 888 999',
+    entitlement: 3.5,
+    occupancyType: 'Owner Occupied',
+    lastUpdated: '2024-03-03'
+  },
+  {
+    unit: '303',
+    name: 'Ahmed Hassan',
+    email: 'a.hassan@email.com',
+    phone: '0488 999 000',
+    entitlement: 3.5,
+    occupancyType: 'Tenanted',
+    lastUpdated: '2024-02-22'
+  },
+  {
+    unit: '304',
+    name: 'Lucy Taylor',
+    email: 'l.taylor@email.com',
+    phone: '0499 000 111',
+    entitlement: 3.5,
+    occupancyType: 'Owner Occupied',
+    lastUpdated: '2024-03-04'
+  },
+  {
+    unit: '401',
+    name: 'Peter Anderson',
+    email: 'p.anderson@email.com',
+    phone: '0411 111 222',
+    entitlement: 4.0,
+    occupancyType: 'Tenanted',
+    lastUpdated: '2024-02-19'
+  },
+  {
+    unit: '402',
+    name: 'Julia Martinez',
+    email: 'j.martinez@email.com',
+    phone: '0422 222 333',
+    entitlement: 4.0,
+    occupancyType: 'Owner Occupied',
+    lastUpdated: '2024-03-06'
+  },
+  {
+    unit: '403',
+    name: 'Thomas Lee',
+    email: 't.lee@email.com',
+    phone: '0433 333 444',
+    entitlement: 4.0,
+    occupancyType: 'Tenanted',
+    lastUpdated: '2024-02-27'
+  },
+  {
+    unit: '404',
+    name: 'Anna Kowalski',
+    email: 'a.kowalski@email.com',
+    phone: '0444 444 555',
+    entitlement: 4.0,
+    occupancyType: 'Owner Occupied',
+    lastUpdated: '2024-03-01'
+  }
 ]
 
 export default function StrataRoll() {
-  const [searchTerm, setSearchTerm] = useState('')
-  const [filter, setFilter] = useState('all')
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  
+  // Initialize search from URL parameters
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '')
+  const [filter, setFilter] = useState(searchParams.get('filter') || 'all')
+
+  // Update URL when search changes
+  const updateSearch = (newSearch: string, newFilter: string) => {
+    const params = new URLSearchParams()
+    if (newSearch) params.set('search', newSearch)
+    if (newFilter !== 'all') params.set('filter', newFilter)
+    
+    router.push(`/strata-roll?${params.toString()}`)
+  }
+
+  // Handle search form submission
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    updateSearch(searchTerm, filter)
+  }
 
   const filteredOwners = unitOwners.filter(owner => {
     const matchesSearch = 
@@ -87,8 +223,8 @@ export default function StrataRoll() {
         </div>
       </div>
 
-      {/* Search and Filter */}
-      <div className="mb-6 flex flex-col sm:flex-row gap-4">
+      {/* Search Form */}
+      <form onSubmit={handleSearch} className="mb-6 flex flex-col sm:flex-row gap-4">
         <div className="flex-1">
           <input
             type="text"
@@ -104,10 +240,27 @@ export default function StrataRoll() {
           className="px-4 py-2 rounded-lg border border-slate-200 focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
         >
           <option value="all">All Units</option>
-          <option value="owner occupied">Owner Occupied</option>
+          <option value="owner-occupied">Owner Occupied</option>
           <option value="tenanted">Tenanted</option>
         </select>
-      </div>
+        <button
+          type="submit"
+          className="bg-sky-500 hover:bg-sky-600 text-white px-6 py-2 rounded-lg transition-colors"
+        >
+          Search
+        </button>
+      </form>
+
+      {/* Display search parameters if any */}
+      {(searchTerm || filter !== 'all') && (
+        <div className="mb-4 p-4 bg-sky-50 rounded-lg">
+          <p className="text-sky-600">
+            Showing results for: 
+            {searchTerm && <span className="font-medium"> "{searchTerm}"</span>}
+            {filter !== 'all' && <span className="font-medium"> in {filter} units</span>}
+          </p>
+        </div>
+      )}
 
       {/* Unit Owners Table */}
       <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
