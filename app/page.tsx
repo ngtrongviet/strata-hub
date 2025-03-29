@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import { Card } from '@/app/components/ui/Card'
+import Link from 'next/link'
 
 export default function Dashboard() {
   return (
@@ -30,60 +31,140 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Content Section */}
+      {/* New Dashboard Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Dashboard Cards */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          <Card
-            title="Maintenance Requests"
-            value="5"
-            description="Active requests"
-            link="/maintenance"
-          />
-          <Card
-            title="Next Meeting"
-            value="Dec 15"
-            description="Annual General Meeting"
-            link="/meetings"
-          />
-          <Card
-            title="Recent Documents"
-            value="3"
-            description="New uploads this week"
-            link="/documents"
-          />
+        {/* Quick Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
+            <h3 className="text-lg font-semibold text-sky-600 mb-2">Active Requests</h3>
+            <p className="text-3xl font-bold text-sky-500">5</p>
+            <p className="text-sm text-slate-500 mt-1">Maintenance issues</p>
+          </div>
+          <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
+            <h3 className="text-lg font-semibold text-sky-600 mb-2">Next Meeting</h3>
+            <p className="text-3xl font-bold text-sky-500">Mar 15</p>
+            <p className="text-sm text-slate-500 mt-1">Committee Meeting</p>
+          </div>
+          <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
+            <h3 className="text-lg font-semibold text-sky-600 mb-2">Total Units</h3>
+            <p className="text-3xl font-bold text-sky-500">24</p>
+            <p className="text-sm text-slate-500 mt-1">In the building</p>
+          </div>
+          <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
+            <h3 className="text-lg font-semibold text-sky-600 mb-2">Notices</h3>
+            <p className="text-3xl font-bold text-sky-500">2</p>
+            <p className="text-sm text-slate-500 mt-1">New announcements</p>
+          </div>
         </div>
 
-        {/* Features Section */}
-        <div className="mt-12 bg-sky-50 rounded-xl p-8">
-          <h2 className="text-2xl font-semibold text-sky-600 mb-6">
-            Key Features
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <h3 className="text-lg font-medium text-blue-900 mb-2">
-                Document Management
-              </h3>
-              <p className="text-gray-600">
-                Secure storage and easy access to important strata documents, including insurance policies and building regulations.
-              </p>
+        {/* Recent Activities & Upcoming Events */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+          <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
+            <h2 className="text-xl font-semibold text-sky-600 mb-4">Recent Activities</h2>
+            <div className="space-y-4">
+              <div className="border-l-4 border-sky-500 pl-4">
+                <p className="text-slate-900 font-medium">New Maintenance Request</p>
+                <p className="text-slate-500 text-sm">Unit 301 reported plumbing issue</p>
+                <p className="text-slate-400 text-sm">2 hours ago</p>
+              </div>
+              <div className="border-l-4 border-sky-500 pl-4">
+                <p className="text-slate-900 font-medium">Document Updated</p>
+                <p className="text-slate-500 text-sm">Building Insurance Policy renewed</p>
+                <p className="text-slate-400 text-sm">1 day ago</p>
+              </div>
+              <div className="border-l-4 border-sky-500 pl-4">
+                <p className="text-slate-900 font-medium">Meeting Minutes Added</p>
+                <p className="text-slate-500 text-sm">February Committee Meeting</p>
+                <p className="text-slate-400 text-sm">2 days ago</p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-lg font-medium text-blue-900 mb-2">
-                Maintenance Tracking
-              </h3>
-              <p className="text-gray-600">
-                Submit and track maintenance requests, with real-time updates on work progress.
-              </p>
+            <Link href="/activities" className="text-sky-600 hover:text-sky-700 text-sm mt-4 inline-block">
+              View all activities →
+            </Link>
+          </div>
+
+          <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
+            <h2 className="text-xl font-semibold text-sky-600 mb-4">Upcoming Events</h2>
+            <div className="space-y-4">
+              <div className="flex items-start gap-4">
+                <div className="bg-sky-100 rounded p-2 text-center min-w-[60px]">
+                  <p className="text-sky-600 font-bold">MAR</p>
+                  <p className="text-sky-800">15</p>
+                </div>
+                <div>
+                  <p className="text-slate-900 font-medium">Committee Meeting</p>
+                  <p className="text-slate-500 text-sm">7:00 PM - Common Room</p>
+                  <p className="text-slate-500 text-sm">Agenda: Budget Review</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-4">
+                <div className="bg-sky-100 rounded p-2 text-center min-w-[60px]">
+                  <p className="text-sky-600 font-bold">MAR</p>
+                  <p className="text-sky-800">20</p>
+                </div>
+                <div>
+                  <p className="text-slate-900 font-medium">Building Inspection</p>
+                  <p className="text-slate-500 text-sm">9:00 AM - All Floors</p>
+                  <p className="text-slate-500 text-sm">Annual Safety Check</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-4">
+                <div className="bg-sky-100 rounded p-2 text-center min-w-[60px]">
+                  <p className="text-sky-600 font-bold">APR</p>
+                  <p className="text-sky-800">01</p>
+                </div>
+                <div>
+                  <p className="text-slate-900 font-medium">Quarterly Levy Due</p>
+                  <p className="text-slate-500 text-sm">Q2 2024 Payment Deadline</p>
+                </div>
+              </div>
             </div>
-            <div>
-              <h3 className="text-lg font-medium text-blue-900 mb-2">
-                Communication Hub
-              </h3>
-              <p className="text-gray-600">
-                Direct communication channel between residents and building management.
-              </p>
-            </div>
+            <Link href="/calendar" className="text-sky-600 hover:text-sky-700 text-sm mt-4 inline-block">
+              View full calendar →
+            </Link>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
+          <h2 className="text-xl font-semibold text-sky-600 mb-6">Quick Actions</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Link 
+              href="/maintenance/new"
+              className="flex items-center p-4 bg-sky-50 rounded-lg hover:bg-sky-100 transition-colors"
+            >
+              <div>
+                <h3 className="font-medium text-sky-900">Report Issue</h3>
+                <p className="text-sm text-sky-600">Submit maintenance request</p>
+              </div>
+            </Link>
+            <Link 
+              href="/documents"
+              className="flex items-center p-4 bg-sky-50 rounded-lg hover:bg-sky-100 transition-colors"
+            >
+              <div>
+                <h3 className="font-medium text-sky-900">Documents</h3>
+                <p className="text-sm text-sky-600">Access important files</p>
+              </div>
+            </Link>
+            <Link 
+              href="/contact"
+              className="flex items-center p-4 bg-sky-50 rounded-lg hover:bg-sky-100 transition-colors"
+            >
+              <div>
+                <h3 className="font-medium text-sky-900">Contact Us</h3>
+                <p className="text-sm text-sky-600">Get in touch</p>
+              </div>
+            </Link>
+            <Link 
+              href="/strata-roll"
+              className="flex items-center p-4 bg-sky-50 rounded-lg hover:bg-sky-100 transition-colors"
+            >
+              <div>
+                <h3 className="font-medium text-sky-900">Strata Roll</h3>
+                <p className="text-sm text-sky-600">View unit details</p>
+              </div>
+            </Link>
           </div>
         </div>
       </div>

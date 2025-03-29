@@ -1,4 +1,11 @@
 {
+    "version": 2,
     "regions": ["syd1"],
-    "buildCommand": "next build"
+    "buildCommand": "next build",
+    "crons": [
+        {
+            "path": "/api/cron/maintenance-alerts",
+            "schedule": "0 10 * * *"
+        }
+    ]
 }
