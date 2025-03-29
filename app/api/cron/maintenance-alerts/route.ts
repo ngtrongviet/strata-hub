@@ -5,7 +5,6 @@ export const runtime = 'edge'
 export async function GET() {
   try {
     // This runs daily at 10 AM
-    // In a real app, you would:
     // 1. Check for overdue maintenance tasks
     // 2. Send reminders to assigned contractors
     // 3. Alert building manager about urgent issues

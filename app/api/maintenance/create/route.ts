@@ -7,7 +7,6 @@ export async function POST(req: NextRequest) {
   try {
     const data = await req.json()
     
-    // In a real app, you would:
     // 1. Validate the request data
     // 2. Save to database
     // 3. Send notifications
