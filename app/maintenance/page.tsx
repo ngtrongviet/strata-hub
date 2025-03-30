@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 
 interface MaintenanceRequest {
   id: string
@@ -47,7 +48,8 @@ const exampleRequests: MaintenanceRequest[] = [
   }
 ]
 
-export default function MaintenancePage() {
+// Create a separate component for the content that uses useSearchParams
+function MaintenanceContent() {
   const [activeTab, setActiveTab] = useState<'active' | 'completed'>('active')
   // Add client-side only state for rendered
   const [isClient, setIsClient] = useState(false)
@@ -164,5 +166,26 @@ export default function MaintenancePage() {
         </div>
       )}
     </div>
+  )
+}
+
+// Main component with Suspense boundary
+export default function MaintenancePage() {
+  return (
+    <Suspense fallback={
+      <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div className="animate-pulse">
+          <div className="h-8 bg-slate-200 rounded w-1/4 mb-4"></div>
+          <div className="h-4 bg-slate-200 rounded w-1/2 mb-8"></div>
+          <div className="space-y-4">
+            <div className="h-24 bg-slate-200 rounded"></div>
+            <div className="h-24 bg-slate-200 rounded"></div>
+            <div className="h-24 bg-slate-200 rounded"></div>
+          </div>
+        </div>
+      </div>
+    }>
+      <MaintenanceContent />
+    </Suspense>
   )
 } 
