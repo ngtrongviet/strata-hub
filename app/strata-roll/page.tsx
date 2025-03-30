@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 
 interface UnitOwner {
   unit: string
@@ -159,28 +160,13 @@ const unitOwners: UnitOwner[] = [
   }
 ]
 
-export default function StrataRoll() {
+// Separate component for content that uses useSearchParams
+function StrataRollContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   
-  // Initialize search from URL parameters
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '')
   const [filter, setFilter] = useState(searchParams.get('filter') || 'all')
-
-  // Update URL when search changes
-  const updateSearch = (newSearch: string, newFilter: string) => {
-    const params = new URLSearchParams()
-    if (newSearch) params.set('search', newSearch)
-    if (newFilter !== 'all') params.set('filter', newFilter)
-    
-    router.push(`/strata-roll?${params.toString()}`)
-  }
-
-  // Handle search form submission
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    updateSearch(searchTerm, filter)
-  }
 
   const filteredOwners = unitOwners.filter(owner => {
     const matchesSearch = 
@@ -190,6 +176,14 @@ export default function StrataRoll() {
     if (filter === 'all') return matchesSearch
     return matchesSearch && owner.occupancyType.toLowerCase() === filter.toLowerCase()
   })
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    const params = new URLSearchParams()
+    if (searchTerm) params.set('search', searchTerm)
+    if (filter !== 'all') params.set('filter', filter)
+    router.push(`/strata-roll?${params.toString()}`)
+  }
 
   const totalEntitlements = unitOwners.reduce((sum, owner) => sum + owner.entitlement, 0)
 
@@ -332,5 +326,41 @@ export default function StrataRoll() {
         </button>
       </div>
     </div>
+  )
+}
+
+// Loading skeleton component
+function LoadingSkeleton() {
+  return (
+    <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <div className="animate-pulse">
+        <div className="h-8 bg-slate-200 rounded w-1/4 mb-4"></div>
+        <div className="h-4 bg-slate-200 rounded w-1/2 mb-8"></div>
+        
+        {/* Search form skeleton */}
+        <div className="flex gap-4 mb-8">
+          <div className="h-10 bg-slate-200 rounded flex-1"></div>
+          <div className="h-10 bg-slate-200 rounded w-32"></div>
+        </div>
+        
+        {/* Table skeleton */}
+        <div className="bg-white border border-slate-200 rounded-lg">
+          <div className="space-y-4 p-4">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="h-16 bg-slate-200 rounded"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Main component with Suspense boundary
+export default function StrataRoll() {
+  return (
+    <Suspense fallback={<LoadingSkeleton />}>
+      <StrataRollContent />
+    </Suspense>
   )
 } 
