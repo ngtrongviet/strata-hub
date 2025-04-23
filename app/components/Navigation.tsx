@@ -1,6 +1,8 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { useEffect, useState } from 'react'
 
 // Define navItems at the component level
 const navItems = [
@@ -13,6 +15,29 @@ const navItems = [
 
 export default function Navigation() {
   const pathname = usePathname()
+  const [user, setUser] = useState<any>(null)
+  const supabase = createClientComponentClient()
+  
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+    }
+    
+    getUser()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user)
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [supabase])
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut()
+  }
   
   return (
     <nav className="fixed top-0 left-0 right-0 shadow z-50" style={{ backgroundColor: '#243E51' }}>
@@ -39,6 +64,23 @@ export default function Navigation() {
                 </Link>
               ))}
             </div>
+          </div>
+          <div className="flex items-center">
+            {user ? (
+              <button
+                onClick={handleSignOut}
+                className="bg-transparent border border-white text-white hover:bg-white hover:text-sky-900 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+              >
+                Sign Out
+              </button>
+            ) : (
+              <Link
+                href="/auth/sign-in"
+                className="bg-white text-sky-900 hover:bg-sky-100 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+              >
+                Sign In
+              </Link>
+            )}
           </div>
         </div>
       </div>

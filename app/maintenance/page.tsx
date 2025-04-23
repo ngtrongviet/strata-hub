@@ -1,78 +1,142 @@
 'use client'
-import { useState, useEffect } from 'react'
-import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
-import { Suspense } from 'react'
 
-interface MaintenanceRequest {
+import { useState, useEffect } from 'react'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+
+type MaintenanceRequest = {
   id: string
-  issueType: string
-  priority: string
+  title: string
   description: string
   location: string
-  status: 'pending' | 'in_progress' | 'completed'
-  submittedAt: string
-  updatedAt: string
+  urgency: 'Low' | 'Medium' | 'High' | 'Critical'
+  status: 'Pending' | 'In Progress' | 'Resolved'
+  created_at: string
+  estimated_cost: number | null
+  deadline: string | null
+  completed_at: string | null
 }
 
-// Format date consistently
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  })
+type Attachment = {
+  id: string
+  file_name: string
+  file_path: string
+  file_type: string
 }
 
-// Move example data outside the component
-const exampleRequests: MaintenanceRequest[] = [
-  {
-    id: '1',
-    issueType: 'electrical',
-    priority: 'urgent',
-    description: 'Power outage in common area',
-    location: 'Ground Floor Lobby',
-    status: 'in_progress',
-    submittedAt: '2024-03-15T10:30:00Z',
-    updatedAt: '2024-03-15T14:20:00Z'
-  },
-  {
-    id: '2',
-    issueType: 'plumbing',
-    priority: 'medium',
-    description: 'Leaking tap in common bathroom',
-    location: 'Level 2 Common Bathroom',
-    status: 'pending',
-    submittedAt: '2024-03-14T09:15:00Z',
-    updatedAt: '2024-03-14T09:15:00Z'
-  }
-]
-
-// Create a separate component for the content that uses useSearchParams
-function MaintenanceContent() {
+export default function MaintenancePage() {
+  const [requests, setRequests] = useState<MaintenanceRequest[]>([])
   const [activeTab, setActiveTab] = useState<'active' | 'completed'>('active')
-  // Add client-side only state for rendered
-  const [isClient, setIsClient] = useState(false)
-  const searchParams = useSearchParams()
-  const success = searchParams.get('success')
-  const requestId = searchParams.get('id')
-  
-  // Use useEffect to handle client-side rendering
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
+  const supabase = createClientComponentClient()
+  const [pendingCount, setPendingCount] = useState(0)
+  const [inProgressCount, setInProgressCount] = useState(0)
+  const [resolvedCount, setResolvedCount] = useState(0)
+
+  const fetchRequests = async () => {
+    try {
+      const { data: { session }, error: authError } = await supabase.auth.getSession()
+      
+      if (authError) throw authError
+      
+      if (!session) {
+        router.push('/auth/sign-in')
+        return
+      }
+
+      // Fetch all requests to get accurate counts
+      const { data: allRequests, error: requestError } = await supabase
+        .from('maintenance_requests')
+        .select('*')
+        .eq('requested_by', session.user.id)
+
+      if (requestError) throw requestError
+
+      // Set all requests for counting
+      const allRequestsArray = allRequests || []
+
+      // Fetch filtered requests based on active tab
+      const { data: filteredRequests, error: filterError } = await supabase
+        .from('maintenance_requests')
+        .select('*')
+        .eq('requested_by', session.user.id)
+        .in('status', activeTab === 'active' ? ['Pending', 'In Progress'] : ['Resolved'])
+        .order('created_at', { ascending: false })
+
+      if (filterError) throw filterError
+
+      // Set the filtered requests for display
+      setRequests(filteredRequests || [])
+
+      // Update counts in state if needed
+      setPendingCount(allRequestsArray.filter(r => r.status === 'Pending').length)
+      setInProgressCount(allRequestsArray.filter(r => r.status === 'In Progress').length)
+      setResolvedCount(allRequestsArray.filter(r => r.status === 'Resolved').length)
+    } catch (error) {
+      console.error('Error:', error)
+      setError('Failed to load maintenance requests')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
-    setIsClient(true)
-  }, [])
-  
+    fetchRequests()
+  }, [activeTab, supabase, router])
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Pending':
+        return 'bg-yellow-100 text-yellow-800'
+      case 'In Progress':
+        return 'bg-blue-100 text-blue-800'
+      case 'Resolved':
+        return 'bg-green-100 text-green-800'
+      default:
+        return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  const getUrgencyColor = (urgency: string) => {
+    switch (urgency) {
+      case 'Critical':
+        return 'bg-red-100 text-red-800'
+      case 'High':
+        return 'bg-orange-100 text-orange-800'
+      case 'Medium':
+        return 'bg-yellow-100 text-yellow-800'
+      case 'Low':
+        return 'bg-green-100 text-green-800'
+      default:
+        return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-600"></div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+          {error}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-      {/* Success Message */}
-      {success && (
-        <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
-          <p className="text-green-700">
-            Maintenance request #{requestId} has been submitted successfully!
-          </p>
-        </div>
-      )}
-
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-sky-600 mb-2">
@@ -94,19 +158,25 @@ function MaintenanceContent() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-white border border-slate-200 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-sky-600 mb-2">Pending</h3>
-          <p className="text-3xl font-bold text-sky-500">3</p>
+          <p className="text-3xl font-bold text-sky-500">
+            {pendingCount}
+          </p>
         </div>
         <div className="bg-white border border-slate-200 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-sky-600 mb-2">In Progress</h3>
-          <p className="text-3xl font-bold text-sky-500">2</p>
+          <p className="text-3xl font-bold text-sky-500">
+            {inProgressCount}
+          </p>
         </div>
         <div className="bg-white border border-slate-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-sky-600 mb-2">Completed</h3>
-          <p className="text-3xl font-bold text-sky-500">8</p>
+          <h3 className="text-lg font-semibold text-sky-600 mb-2">Resolved</h3>
+          <p className="text-3xl font-bold text-sky-500">
+            {resolvedCount}
+          </p>
         </div>
       </div>
 
-      {/* Request List */}
+      {/* Requests List */}
       <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
         <div className="border-b border-slate-200">
           <nav className="flex">
@@ -133,59 +203,47 @@ function MaintenanceContent() {
           </nav>
         </div>
 
-        <div className="divide-y divide-gray-200 dark:divide-blue-700">
-          {isClient && exampleRequests.map((request) => (
-            <div key={request.id} className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-blue-900 dark:text-white">
-                  {request.issueType.charAt(0).toUpperCase() + request.issueType.slice(1)} Issue
-                </h3>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  request.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                  request.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
-                  'bg-green-100 text-green-800'
-                }`}>
-                  {request.status.replace('_', ' ').charAt(0).toUpperCase() + request.status.slice(1)}
-                </span>
-              </div>
-              <p className="text-gray-600 dark:text-gray-300 mb-4">{request.description}</p>
-              <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400">
-                <span>Location: {request.location}</span>
-                <span>Priority: {request.priority.toUpperCase()}</span>
-                <span>Submitted: {formatDate(request.submittedAt)}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Show loading state while client-side rendering isn't ready */}
-      {!isClient && (
-        <div className="p-6 text-center text-gray-500 dark:text-gray-400">
-          Loading...
-        </div>
-      )}
-    </div>
-  )
-}
-
-// Main component with Suspense boundary
-export default function MaintenancePage() {
-  return (
-    <Suspense fallback={
-      <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <div className="animate-pulse">
-          <div className="h-8 bg-slate-200 rounded w-1/4 mb-4"></div>
-          <div className="h-4 bg-slate-200 rounded w-1/2 mb-8"></div>
-          <div className="space-y-4">
-            <div className="h-24 bg-slate-200 rounded"></div>
-            <div className="h-24 bg-slate-200 rounded"></div>
-            <div className="h-24 bg-slate-200 rounded"></div>
+        {loading ? (
+          <div className="p-8 text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-600 mx-auto"></div>
           </div>
-        </div>
+        ) : requests.length === 0 ? (
+          <div className="p-8 text-center text-slate-500">
+            No maintenance requests found
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-200">
+            {requests.map((request) => (
+              <div
+                key={request.id}
+                className="p-6 hover:bg-slate-50 transition-colors cursor-pointer"
+                onClick={() => router.push(`/maintenance/${request.id}`)}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-medium text-slate-900">
+                    {request.title}
+                  </h3>
+                  <div className="flex items-center space-x-3">
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getUrgencyColor(request.urgency)}`}>
+                      {request.urgency}
+                    </span>
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(request.status)}`}>
+                      {request.status}
+                    </span>
+                  </div>
+                </div>
+                <p className="text-slate-600 mb-4">{request.description}</p>
+                <div className="flex items-center justify-between text-sm text-slate-500">
+                  <span>Location: {request.location}</span>
+                  <span>
+                    Created: {new Date(request.created_at).toLocaleDateString()}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-    }>
-      <MaintenanceContent />
-    </Suspense>
+    </div>
   )
 } 
