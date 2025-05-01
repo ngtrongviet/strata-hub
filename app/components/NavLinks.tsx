@@ -10,6 +10,7 @@ export default function NavLinks() {
     { href: '/documents', label: 'Documents' },
     { href: '/strata-roll', label: 'Strata Roll' },
     { href: '/maintenance', label: 'Maintenance' },
+    { href: '/api/index.php', label: 'Budget' },
     { href: '/contact', label: 'Contact' },
   ]
 
