@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { setUser } from '@/app/utils/auth'
+import { setUser, removeUser } from '@/app/utils/auth'
 
 export default function SignIn() {
   const [email, setEmail] = useState('')
@@ -20,6 +20,7 @@ export default function SignIn() {
     setError(null)
 
     try {
+      // Attempt to sign in with Supabase authentication
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -32,13 +33,17 @@ export default function SignIn() {
           setError(error.message)
         }
       } else if (data.user) {
-        // Store user information in cookies using the utility function
+        // User successfully logged in
+        
+        // Store the user's information in a browser cookie
+        // This will allow us to remember the user across pages
         setUser({
           id: data.user.id,
           email: data.user.email || '',
           name: data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || '',
         })
 
+        // Redirect to the home page after successful login
         router.push('/')
         router.refresh()
       }
@@ -48,6 +53,13 @@ export default function SignIn() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleLogout = () => {
+    // Remove the user cookie
+    removeUser()
+    // Redirect to login page
+    router.push('/auth/sign-in')
   }
 
   return (
