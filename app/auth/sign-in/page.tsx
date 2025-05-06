@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { setUser } from '@/app/utils/auth'
 
 export default function SignIn() {
   const [email, setEmail] = useState('')
@@ -19,7 +20,7 @@ export default function SignIn() {
     setError(null)
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
@@ -30,7 +31,14 @@ export default function SignIn() {
         } else {
           setError(error.message)
         }
-      } else {
+      } else if (data.user) {
+        // Store user information in cookies using the utility function
+        setUser({
+          id: data.user.id,
+          email: data.user.email || '',
+          name: data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || '',
+        })
+
         router.push('/')
         router.refresh()
       }

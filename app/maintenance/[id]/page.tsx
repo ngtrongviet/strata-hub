@@ -122,35 +122,6 @@ export default function MaintenanceRequestDetail() {
     }
   }
 
-  const handleDelete = async () => {
-    if (!window.confirm('Are you sure you want to delete this request?')) return
-
-    setIsUpdating(true)
-    try {
-      // Delete attachments from storage
-      for (const attachment of attachments) {
-        await supabase.storage
-          .from('maintenance-attachments')
-          .remove([attachment.file_path])
-      }
-
-      // Delete request (this will cascade delete attachments records)
-      const { error } = await supabase
-        .from('maintenance_requests')
-        .delete()
-        .eq('id', requestId)
-
-      if (error) throw error
-
-      router.push('/maintenance')
-    } catch (error) {
-      console.error('Error:', error)
-      setError('Failed to delete request')
-    } finally {
-      setIsUpdating(false)
-    }
-  }
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Pending':
@@ -234,13 +205,6 @@ export default function MaintenanceRequestDetail() {
               </button>
             </>
           )}
-          <button
-            onClick={handleDelete}
-            disabled={isUpdating}
-            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50"
-          >
-            Delete
-          </button>
         </div>
       </div>
 

@@ -1,22 +1,52 @@
 'use client'
 import { useState } from 'react'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { isAuthenticated, getUser, removeUser } from '@/app/utils/auth'
 
 export default function Contact() {
   const [formData, setFormData] = useState({
     name: '',
-    unit: '',
     email: '',
     subject: '',
     message: ''
   })
+  const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const supabase = createClientComponentClient()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle form submission
-    console.log('Form submitted:', formData)
-    // Reset form
-    setFormData({ name: '', unit: '', email: '', subject: '', message: '' })
-    alert('Message sent successfully!')
+    setLoading(true)
+    setError(null)
+    
+    try {
+      // Save form data to Supabase
+      const { error: insertError } = await supabase
+        .from('contact_messages')
+        .insert([
+          {
+            name: formData.name,
+            email: formData.email,
+            subject: formData.subject,
+            message: formData.message,
+          }
+        ])
+
+      if (insertError) {
+        throw new Error(insertError.message)
+      }
+
+      // Reset form and show success message
+      setFormData({ name: '', email: '', subject: '', message: '' })
+      setSuccess(true)
+      setTimeout(() => setSuccess(false), 5000) // Hide success message after 5 seconds
+    } catch (err) {
+      console.error('Error submitting form:', err)
+      setError(err instanceof Error ? err.message : 'Failed to send message. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const emergencyContacts = [
@@ -65,6 +95,11 @@ export default function Contact() {
     }
   ]
 
+  const user = getUser()
+  if (user) {
+    console.log(user.name) // Access user data
+  }
+
   return (
     <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
       {/* Contact Form Section */}
@@ -77,6 +112,18 @@ export default function Contact() {
         </p>
 
         <form onSubmit={handleSubmit} className="max-w-2xl bg-white border border-slate-200 rounded-lg p-6">
+          {error && (
+            <div className="mb-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+              {error}
+            </div>
+          )}
+          
+          {success && (
+            <div className="mb-6 bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-lg">
+              Message sent successfully!
+            </div>
+          )}
+          
           <div className="grid grid-cols-1 gap-6">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
@@ -87,19 +134,6 @@ export default function Contact() {
                 required
                 value={formData.name}
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
-                className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Unit Number
-              </label>
-              <input
-                type="text"
-                required
-                value={formData.unit}
-                onChange={(e) => setFormData({...formData, unit: e.target.value})}
                 className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
               />
             </div>
@@ -145,9 +179,10 @@ export default function Contact() {
 
             <button
               type="submit"
-              className="w-full bg-sky-500 hover:bg-sky-600 text-white px-6 py-3 rounded-lg transition-colors"
+              disabled={loading}
+              className={`w-full ${loading ? 'bg-sky-300' : 'bg-sky-500 hover:bg-sky-600'} text-white px-6 py-3 rounded-lg transition-colors flex justify-center items-center`}
             >
-              Send Message
+              {loading ? 'Sending...' : 'Send Message'}
             </button>
           </div>
         </form>
