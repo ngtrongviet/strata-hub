@@ -21,19 +21,23 @@ export default function SignIn() {
     setError(null)
 
     try {
-      // Check if email exists before attempting sign in
-      const { data: { users }, error: checkError } = await supabase.auth.admin.listUsers()
+      // Check if email exists and how it was registered
+      const { data: { users }, error: listError } = await supabase.auth.admin.listUsers()
       
-      if (checkError) {
-        throw checkError
-      }
-
-      const emailExists = users?.some(user => user.email === email)
-      
-      if (!emailExists) {
-        setError('No account found with this email address')
-        setLoading(false)
-        return
+      if (!listError) {
+        const user = users?.find(u => u.email === email)
+        if (user) {
+          // If user exists and has a provider, they used social login
+          if (user.app_metadata.provider) {
+            setError(`This email is registered with ${user.app_metadata.provider}. Please sign in with ${user.app_metadata.provider} instead.`)
+            setLoading(false)
+            return
+          }
+        } else {
+          setError('No account found with this email address')
+          setLoading(false)
+          return
+        }
       }
 
       // Attempt to sign in with Supabase authentication
@@ -45,6 +49,8 @@ export default function SignIn() {
       if (error) {
         if (error.message.includes('Invalid login credentials')) {
           setError('Invalid email or password. Please try again.')
+        } else if (error.message.includes('Email not confirmed')) {
+          setError('Please check your email for the confirmation link.')
         } else {
           setError(error.message)
         }
@@ -64,8 +70,8 @@ export default function SignIn() {
         router.refresh()
       }
     } catch (error) {
-      setError('An unexpected error occurred')
       console.error('Sign in error:', error)
+      setError('Unable to sign in. Please try again or use a different method.')
     } finally {
       setLoading(false)
     }

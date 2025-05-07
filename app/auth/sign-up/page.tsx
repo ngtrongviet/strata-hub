@@ -35,21 +35,36 @@ export default function SignUp() {
 
   const checkEmailExists = async (email: string) => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password: 'dummy-password-for-check',
-      })
+      // First try to get user by email
+      const { data: { users }, error: listError } = await supabase.auth.admin.listUsers()
       
-      // If we get a "Invalid login credentials" error, it means the email exists
-      // but the password is wrong (which is what we want for a new sign-up)
-      if (error?.message.includes('Invalid login credentials')) {
-        return true
+      if (listError) {
+        // If we can't list users, fall back to sign-in check
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password: 'dummy-password-for-check',
+        })
+        
+        // If we get a "Invalid login credentials" error, it means the email exists
+        if (signInError?.message.includes('Invalid login credentials')) {
+          return { exists: true, isOAuth: false }
+        }
+        
+        return { exists: false, isOAuth: false }
+      }
+
+      // Check if user exists and if they have a password
+      const user = users?.find(u => u.email === email)
+      if (user) {
+        return { 
+          exists: true, 
+          isOAuth: !user.app_metadata.provider // If provider is null, it's an email account
+        }
       }
       
-      // If we get any other error or no error, the email doesn't exist
-      return false
+      return { exists: false, isOAuth: false }
     } catch {
-      return false
+      return { exists: false, isOAuth: false }
     }
   }
 
@@ -77,9 +92,13 @@ export default function SignUp() {
       }
 
       // Check if email already exists
-      const emailExists = await checkEmailExists(email)
-      if (emailExists) {
-        setError('This email is already registered. Please sign in instead.')
+      const { exists, isOAuth } = await checkEmailExists(email)
+      if (exists) {
+        if (isOAuth) {
+          setError('This email is already registered with a social account. Please sign in with Google or GitHub instead.')
+        } else {
+          setError('This email is already registered. Please sign in instead.')
+        }
         return
       }
 
@@ -92,7 +111,11 @@ export default function SignUp() {
       })
 
       if (signUpError) {
-        setError(signUpError.message)
+        if (signUpError.message.includes('already registered')) {
+          setError('This email is already registered with a social account. Please sign in with Google or GitHub instead.')
+        } else {
+          setError(signUpError.message)
+        }
       } else {
         setSuccessMessage('Check your email for the confirmation link')
         setEmail('')
@@ -101,7 +124,7 @@ export default function SignUp() {
         setAcceptedTerms(false)
       }
     } catch (error) {
-      setError('An unexpected error occurred')
+      setError('An unexpected error occurred. Please try again.')
     } finally {
       setLoading(false)
     }
