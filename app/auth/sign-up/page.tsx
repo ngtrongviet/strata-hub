@@ -33,6 +33,26 @@ export default function SignUp() {
 
   const passwordStrength = checkPasswordStrength(password)
 
+  const checkEmailExists = async (email: string) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password: 'dummy-password-for-check',
+      })
+      
+      // If we get a "Invalid login credentials" error, it means the email exists
+      // but the password is wrong (which is what we want for a new sign-up)
+      if (error?.message.includes('Invalid login credentials')) {
+        return true
+      }
+      
+      // If we get any other error or no error, the email doesn't exist
+      return false
+    } catch {
+      return false
+    }
+  }
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -56,6 +76,13 @@ export default function SignUp() {
         return
       }
 
+      // Check if email already exists
+      const emailExists = await checkEmailExists(email)
+      if (emailExists) {
+        setError('This email is already registered. Please sign in instead.')
+        return
+      }
+
       const { error: signUpError } = await supabase.auth.signUp({
         email,
         password,
@@ -65,11 +92,7 @@ export default function SignUp() {
       })
 
       if (signUpError) {
-        if (signUpError.message.includes('already registered')) {
-          setError('This email is already registered. Please sign in instead.')
-        } else {
-          setError(signUpError.message)
-        }
+        setError(signUpError.message)
       } else {
         setSuccessMessage('Check your email for the confirmation link')
         setEmail('')
