@@ -2,8 +2,9 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { useEffect, useState } from 'react'
-import { removeUser } from '@/app/utils/auth'
+import { useEffect, useState, useRef } from 'react'
+import { removeUser, getUser } from '@/app/utils/auth'
+import { FaUser } from 'react-icons/fa'
 
 // Define navItems at the component level
 const navItems = [
@@ -19,15 +20,17 @@ export default function Navigation() {
   const pathname = usePathname()
   const router = useRouter()
   const [user, setUser] = useState<any>(null)
+  const [isOpen, setIsOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
   const supabase = createClientComponentClient()
   
   useEffect(() => {
-    const getUser = async () => {
+    const getSupabaseUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
     }
     
-    getUser()
+    getSupabaseUser()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user)
@@ -38,6 +41,20 @@ export default function Navigation() {
     }
   }, [supabase])
 
+  // Close dropdown when clicking outside of it
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
   const handleSignOut = async () => {
     try {
       // Sign out from Supabase
@@ -45,6 +62,9 @@ export default function Navigation() {
       
       // Also clear the cookie
       removeUser()
+      
+      // Close the dropdown menu
+      setIsOpen(false)
       
       // Redirect to home page
       router.push('/')
@@ -81,21 +101,50 @@ export default function Navigation() {
             </div>
           </div>
           <div className="flex items-center">
-            {user ? (
+            {/* User Icon with Dropdown */}
+            <div className="relative" ref={dropdownRef}>
               <button
-                onClick={handleSignOut}
-                className="bg-transparent border border-white text-white hover:bg-white hover:text-sky-900 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                onClick={() => setIsOpen(!isOpen)}
+                className="flex items-center justify-center h-10 w-10 rounded-full bg-white text-sky-900 hover:bg-sky-100 focus:outline-none"
+                aria-expanded={isOpen}
               >
-                Sign Out
+                <FaUser className="h-5 w-5" />
               </button>
-            ) : (
-              <Link
-                href="/auth/sign-in"
-                className="bg-white text-sky-900 hover:bg-sky-100 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-              >
-                Sign In
-              </Link>
-            )}
+              
+              {/* Dropdown Menu */}
+              {isOpen && (
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-1 z-50">
+                  {user ? (
+                    <div className="px-4 py-3">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {user.user_metadata?.full_name || 'User'}
+                      </p>
+                      <p className="text-sm text-gray-500 truncate">
+                        {user.email}
+                      </p>
+                      <div className="mt-3">
+                        <button
+                          onClick={handleSignOut}
+                          className="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 rounded-md"
+                        >
+                          Sign Out
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <Link
+                        href="/auth/sign-in"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        Sign In
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
