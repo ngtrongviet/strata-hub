@@ -21,25 +21,6 @@ export default function SignIn() {
     setError(null)
 
     try {
-      // Check if email exists and how it was registered
-      const { data: { users }, error: listError } = await supabase.auth.admin.listUsers()
-      
-      if (!listError) {
-        const user = users?.find(u => u.email === email)
-        if (user) {
-          // If user exists and has a provider, they used social login
-          if (user.app_metadata.provider) {
-            setError(`This email is registered with ${user.app_metadata.provider}. Please sign in with ${user.app_metadata.provider} instead.`)
-            setLoading(false)
-            return
-          }
-        } else {
-          setError('No account found with this email address')
-          setLoading(false)
-          return
-        }
-      }
-
       // Attempt to sign in with Supabase authentication
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -51,6 +32,8 @@ export default function SignIn() {
           setError('Invalid email or password. Please try again.')
         } else if (error.message.includes('Email not confirmed')) {
           setError('Please check your email for the confirmation link.')
+        } else if (error.message.includes('not found')) {
+          setError('No account found with this email address. Please sign up instead.')
         } else {
           setError(error.message)
         }

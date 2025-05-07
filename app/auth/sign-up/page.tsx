@@ -33,41 +33,6 @@ export default function SignUp() {
 
   const passwordStrength = checkPasswordStrength(password)
 
-  const checkEmailExists = async (email: string) => {
-    try {
-      // First try to get user by email
-      const { data: { users }, error: listError } = await supabase.auth.admin.listUsers()
-      
-      if (listError) {
-        // If we can't list users, fall back to sign-in check
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email,
-          password: 'dummy-password-for-check',
-        })
-        
-        // If we get a "Invalid login credentials" error, it means the email exists
-        if (signInError?.message.includes('Invalid login credentials')) {
-          return { exists: true, isOAuth: false }
-        }
-        
-        return { exists: false, isOAuth: false }
-      }
-
-      // Check if user exists and if they have a password
-      const user = users?.find(u => u.email === email)
-      if (user) {
-        return { 
-          exists: true, 
-          isOAuth: !user.app_metadata.provider // If provider is null, it's an email account
-        }
-      }
-      
-      return { exists: false, isOAuth: false }
-    } catch {
-      return { exists: false, isOAuth: false }
-    }
-  }
-
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -77,32 +42,25 @@ export default function SignUp() {
     try {
       if (!acceptedTerms) {
         setError('You must accept the Terms of Service and Privacy Policy')
+        setLoading(false)
         return
       }
 
       if (password !== confirmPassword) {
         setError('Passwords do not match')
+        setLoading(false)
         return
       }
 
       const passwordCheck = checkPasswordStrength(password)
       if (passwordCheck.strength < 4) {
         setError('Password does not meet strength requirements')
+        setLoading(false)
         return
       }
 
-      // Check if email already exists
-      const { exists, isOAuth } = await checkEmailExists(email)
-      if (exists) {
-        if (isOAuth) {
-          setError('This email is already registered with a social account. Please sign in with Google or GitHub instead.')
-        } else {
-          setError('This email is already registered. Please sign in instead.')
-        }
-        return
-      }
-
-      const { error: signUpError } = await supabase.auth.signUp({
+      // Actual sign-up attempt (no need for separate check)
+      const { error: signUpError, data } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -112,18 +70,22 @@ export default function SignUp() {
 
       if (signUpError) {
         if (signUpError.message.includes('already registered')) {
-          setError('This email is already registered with a social account. Please sign in with Google or GitHub instead.')
+          setError('This email is already registered. Please sign in instead.')
         } else {
           setError(signUpError.message)
         }
-      } else {
-        setSuccessMessage('Check your email for the confirmation link')
-        setEmail('')
-        setPassword('')
-        setConfirmPassword('')
-        setAcceptedTerms(false)
+        setLoading(false)
+        return
       }
+      
+      // If we get here, sign-up was successful
+      setSuccessMessage('Check your email for the confirmation link')
+      setEmail('')
+      setPassword('')
+      setConfirmPassword('')
+      setAcceptedTerms(false)
     } catch (error) {
+      console.error('Sign up error:', error)
       setError('An unexpected error occurred. Please try again.')
     } finally {
       setLoading(false)
