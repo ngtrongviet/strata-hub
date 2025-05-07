@@ -1,8 +1,9 @@
 'use client'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useEffect, useState } from 'react'
+import { removeUser } from '@/app/utils/auth'
 
 // Define navItems at the component level
 const navItems = [
@@ -16,6 +17,7 @@ const navItems = [
 
 export default function Navigation() {
   const pathname = usePathname()
+  const router = useRouter()
   const [user, setUser] = useState<any>(null)
   const supabase = createClientComponentClient()
   
@@ -37,7 +39,19 @@ export default function Navigation() {
   }, [supabase])
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut()
+    try {
+      // Sign out from Supabase
+      await supabase.auth.signOut()
+      
+      // Also clear the cookie
+      removeUser()
+      
+      // Redirect to home page
+      router.push('/')
+      router.refresh()
+    } catch (error) {
+      console.error('Error signing out:', error)
+    }
   }
   
   return (
