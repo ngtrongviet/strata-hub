@@ -1,7 +1,6 @@
 'use client'
 import { useState } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { isAuthenticated, getUser, removeUser } from '@/app/utils/auth'
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -94,11 +93,6 @@ export default function Contact() {
       answer: 'Pets are allowed with prior approval from the strata committee. Submit a pet application form with your pet\'s details and vaccination records.'
     }
   ]
-
-  const user = getUser()
-  if (user) {
-    console.log(user.name) // Access user data
-  }
 
   return (
     <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
