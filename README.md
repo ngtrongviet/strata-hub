@@ -1,4 +1,4 @@
-**Strata Management System (StrataHub)** 
+## Strata Management System (StrataHub)** 
 
 **Purpose:** A web-based platform for strata committees in NSW to manage residential buildings efficiently.
 
@@ -11,7 +11,6 @@
 - **Budget Manager:** (via PHP backend) Simple income/expense tracking for committee finances.
 
 ### Technical Stack
-- **Frontend:** Next.js 14, React, TypeScript, Tailwind CSS
+- **Frontend:** Next.js, Tailwind CSS
 - **Authentication:** Supabase (email/password, Google, GitHub)
-- **Backend/API:** PHP (for budget management)
-- **Other:** Uses Supabase for authentication and user management.
+- **Deployment:** Vercel
