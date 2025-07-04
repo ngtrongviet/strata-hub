@@ -1,4 +1,5 @@
 **Strata Management System (StrataHub)** 
+
 **Purpose:** A web-based platform for strata committees in NSW to manage residential buildings efficiently.
 
 ### Key Features
