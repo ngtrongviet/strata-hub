@@ -1,55 +1,16 @@
-# Strata Management System - INFO1111 Self-learning Project
+**Strata Management System (StrataHub)** 
+**Purpose:** A web-based platform for strata committees in NSW to manage residential buildings efficiently.
 
-## Project Overview
+### Key Features
+- **Dashboard:** Building overview, quick stats, recent activities, and upcoming events.
+- **Document Management:** Secure repository for insurance, rules, and other documents.
+- **Maintenance Requests:** Submit, track, and manage building maintenance issues.
+- **Strata Roll Management:** Directory of unit owners, entitlement tracking, and contact management.
+- **Contact & Communication:** Contact forms, emergency contacts, FAQs, and announcements.
+- **Budget Manager:** (via PHP backend) Simple income/expense tracking for committee finances.
 
-This project is a web-based strata management system developed for INFO1111 course. The system is designed to help strata committees in New South Wales manage residential buildings efficiently through a user-friendly digital platform.
-
-## Project Features
-
-### 1. Dashboard
-
-- Building status overview with hero image
-- Quick access to key features
-- Recent activities and upcoming events display
-- Statistics and important notices
-
-### 2. Document Management
-
-- Access to building documents:
-  - Insurance policies
-  - Building rules and regulations
-- Secure document repository
-- Easy download functionality
-
-### 3. Maintenance Request System
-
-- Submit maintenance requests with:
-  - Issue type selection
-  - Priority level setting
-  - Location specification
-  - Description field
-  - Photo attachment capability
-- Track request status
-
-### 4. Strata Roll Management
-
-- Comprehensive unit owner directory
-- Search and filter functionality
-- Unit entitlement tracking
-- Contact information management
-
-### 5. Contact & Communication
-
-- Building management contact form
-- Emergency contacts display
-- FAQ section
-- Important announcements
-
-## Technical Implementation
-
-### Frontend Development
-
-- **Framework**: Next.js 14
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **Components**: React components with client and server-side rendering
+### Technical Stack
+- **Frontend:** Next.js 14, React, TypeScript, Tailwind CSS
+- **Authentication:** Supabase (email/password, Google, GitHub)
+- **Backend/API:** PHP (for budget management)
+- **Other:** Uses Supabase for authentication and user management.
